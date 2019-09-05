@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_see_files_list"
+        android:title="@string/action_file_list" />
+
+    <item
+        android:id="@+id/action_rename_conversation"
+        android:title="@string/action_rename_group" />
+
+    <item
+        android:id="@+id/action_leave_conversation"
+        android:title="@string/action_leave_group" />
+
+    <item
+        android:id="@+id/action_mute_conversation_group"
+        android:title="@string/action_mute_conversation" />
+
+    <item
+        android:id="@+id/action_group_members"
+        android:title="@string/action_group_members" />
+
+</menu>
