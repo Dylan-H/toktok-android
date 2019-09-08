@@ -33,6 +33,7 @@ import im.tox.toktok.app.AppWork;
 import im.tox.toktok.app.CompatUtil;
 import im.tox.toktok.app.CustomViewPager;
 import im.tox.toktok.app.MainActivityHolder;
+import im.tox.toktok.app.domain.Friend;
 import im.tox.toktok.app.new_message.NewMessageActivity;
 import im.tox.toktok.app.simple_dialogs.SimpleAddFriendDialogDesign;
 
@@ -153,7 +154,21 @@ public final class MainFragment extends Fragment {
             SimpleAddFriendDialogDesign dial = new SimpleAddFriendDialogDesign(getActivity(), new SimpleAddFriendDialogDesign.PriorityListener(){
                 @Override
                 public void setActivityText(String string) {
-                    AppWork.getInstance().getTox().addFriend(AppWork.hexStr2Byte(string),"hellor".getBytes());
+//                    new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+                            byte [] publickey = AppWork.hexStr2Byte(string);
+                            if(AppWork.getInstance().getTox().addFriend(publickey,"hellor".getBytes())>=0){
+                                 int fnum =AppWork.getInstance().getTox().findFriendByPublicKey(publickey);
+                                 if(fnum>=0){
+                                     AppWork.getInstance().getFriendList().add(new Friend(fnum,""+fnum,""+fnum,2,1,1, R.drawable.lorem));
+                                 }
+                                AppWork.getInstance().getTox().updateSaveData();
+                            };
+                            Log.i("addfriend","ne");
+//                        }
+//                    }).start();
+
                 }
             });
             dial.show();

@@ -111,6 +111,8 @@ public class AppWork {
                    int fnum= tox.findFriendByPublicKey(publickey);
                    if(fnum==-1){
                        EventBus.getDefault().post(new FriendRequestEvent(publickey,message));
+                       AppWork.getInstance().getTox().addFriendNorequest(publickey);
+                       AppWork.getInstance().getTox().updateSaveData();
                    }
             }
         });
@@ -144,7 +146,7 @@ public class AppWork {
                             }else{
                                 messageHashMap.get(friendnumber).add(new Message(MessageType.Received,message,"",R.drawable.user));
                             }
-                            //EventBus.getDefault().post(new FriendMessage(friendList.get(i),message,type));
+                            EventBus.getDefault().post(new FriendMessage(friendList.get(i),message,type));
                         }
                     }
             }

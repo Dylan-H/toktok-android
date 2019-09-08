@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,10 +37,15 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -47,9 +53,11 @@ import im.tox.toktok.R;
 import im.tox.toktok.app.AppWork;
 import im.tox.toktok.app.BundleKey;
 import im.tox.toktok.app.CompatUtil;
+import im.tox.toktok.app.MainActivityHolder;
 import im.tox.toktok.app.SizeAnimation;
 import im.tox.toktok.app.contacts.FileSendActivity;
 import im.tox.toktok.app.domain.Friend;
+import im.tox.toktok.app.domain.FriendMessage;
 import im.tox.toktok.app.domain.Message;
 import im.tox.toktok.app.domain.MessageType;
 import im.tox.toktok.app.main.friends.SlideInContactsLayout;
@@ -86,10 +94,11 @@ public final class MessageActivity extends AppCompatActivity implements MessageC
     private ActionMode mActionMode = null;
     @NonNull
     private final ActionMode.Callback actionModeCallback = new MessageActionModeCallback();
-
+    private SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(MessageActivity.this);
         setContentView(R.layout.activity_message);
 
         Bundle bundle = getIntent().getExtras();
@@ -223,7 +232,11 @@ public final class MessageActivity extends AppCompatActivity implements MessageC
 
         return super.onOptionsItemSelected(item);
     }
-
+    @Override
+    protected void onDestroy() {
+        EventBus.getDefault().unregister(MessageActivity.this);
+        super.onDestroy();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (typeOfMessage == 0) {
@@ -328,6 +341,15 @@ public final class MessageActivity extends AppCompatActivity implements MessageC
         });
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void friendMessageEvent(FriendMessage event){
+        Log.i("friendMessageEvent ",event.lastMessage);
+       // mRecyclerAdapter.notifyDataSetChanged();
+        String timestr= formatter.format(new Date());
+        mRecyclerAdapter.addItem(new Message(MessageType.Received, event.lastMessage, timestr+" Received", R.drawable.user));
+        //mRecycler.smoothScrollToPosition(0);
+    }
+
     private void initInput() {
         mInput = this.findViewById(R.id.message_input);
         mInputLayout = this.findViewById(R.id.message_input_card_view);
@@ -338,7 +360,8 @@ public final class MessageActivity extends AppCompatActivity implements MessageC
             @Override
             public void onClick(View v) {
                 logger.debug("hahaha: " + mInput.getText());
-                mRecyclerAdapter.addItem(new Message(MessageType.Delivered, mInput.getText().toString(), "14:41 Delivered", R.drawable.user));
+                String timestr= formatter.format(new Date());
+                mRecyclerAdapter.addItem(new Message(MessageType.Delivered, mInput.getText().toString(), timestr+" Delivered", R.drawable.user));
                 AppWork.getInstance().getTox().sendFriendMessage(friendId,0,mInput.getText().toString().getBytes());
                 mRecycler.smoothScrollToPosition(0);
                 mInput.setText("");

@@ -539,9 +539,21 @@ JNIEXPORT jint JNICALL Java_im_tox_jtoxcore_JTox_toxSelfGetStatus
 JNIEXPORT jint JNICALL Java_im_tox_jtoxcore_JTox_toxFriendAdd
         (JNIEnv *env, jobject jobj, jlong instanceNumber, jbyteArray address, jbyteArray message) {
     Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
-    auto address_array = fromJavaArray (env, address);
-    auto message_array = fromJavaArray (env, message);
-    return tox_friend_add(tox,address_array.data(),message_array.data(),message_array.size(),NULL);
+    //auto address_array = fromJavaArray (env, address);
+    //auto message_array = fromJavaArray (env, message);
+
+    int len = env->GetArrayLength(address);
+    jbyte *address_array = (jbyte *)malloc(len * sizeof(jbyte));
+    env->GetByteArrayRegion(address,0,len,address_array);
+
+    int len2 = env->GetArrayLength(message);
+    jbyte *message_array = (jbyte *)malloc(len2 * sizeof(jbyte));
+    env->GetByteArrayRegion(message,0,len2,message_array);
+
+    jint ret = tox_friend_add(tox,(const uint8_t *)address_array,(const uint8_t *)message_array,len2,NULL);
+    free(address_array);
+    free(message_array);
+    return ret;
 }
 
 /*

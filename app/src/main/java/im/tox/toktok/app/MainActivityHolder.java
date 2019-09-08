@@ -173,8 +173,8 @@ public final class MainActivityHolder extends AppCompatActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void friendRequestEvent(FriendRequestEvent event){
         Log.i("Request friend",event.message);
-        AppWork.getInstance().getTox().addFriendNorequest(event.publickey);
-        AppWork.getInstance().getTox().updateSaveData();
+//        AppWork.getInstance().getTox().addFriendNorequest(event.publickey);
+//        AppWork.getInstance().getTox().updateSaveData();
     }
 
 
