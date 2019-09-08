@@ -45,6 +45,7 @@ public class JTox {
 
      native long  toxNew(String path);
 
+     native void toxUpdateSaveData(long instanceNumber);
      native void toxKill(long instanceNumber);
 
      native void toxFinalize(long instanceNumber);
@@ -103,7 +104,7 @@ public class JTox {
 
      native void toxSelfSetTyping(long instanceNumber, int friendNumber, boolean typing) ;
 
-     native int toxFriendSendMessage(long instanceNumber, int friendNumber, int type, int timeDelta,  byte[] message) ;
+     native int toxFriendSendMessage(long instanceNumber, int friendNumber, int type, byte[] message) ;
 
      native void toxFileControl(long instanceNumber, int friendNumber, int fileNumber, int control) ;
 
@@ -119,43 +120,179 @@ public class JTox {
 
      native void toxFriendSendLosslessPacket(long instanceNumber, int friendNumber,  byte[] data); 
 
-     native void invokeSelfConnectionStatus(long instanceNumber, boolean breg);
+     native void registeSelfConnectionStatusCallBack(long instanceNumber, boolean breg);
+     native void registeFriendNameCallBack(long instanceNumber, boolean breg);
+     native void registeFriendStatusMessageCallBack(long instanceNumber, boolean breg);
+     native void registeFriendStatusCallBack(long instanceNumber, boolean breg);
 
-
+     native void registeFriendConnectionStatusCallBack(long instanceNumber, boolean breg);
+     native void registeFriendTypingCallBack(long instanceNumber, boolean breg);
+     native void registeFriendNReadReceiptCallBack(long instanceNumber, boolean breg);
+     native void registeFriendRequestCallBack(long instanceNumber, boolean breg);
+     native void registeFriendMessageCallBack(long instanceNumber, boolean breg);
+     native void registeFriendLossyPacketCallBack(long instanceNumber, boolean breg);
+     native void registeFriendLossLessPacketCallBack(long instanceNumber, boolean breg);
 
     private  CallbackHandler handler;
 
-    public  JTox(CallbackHandler handler){
+    public  JTox(CallbackHandler handler,String savedatafile){
         this.handler =handler;
-        instanceNumber = toxNew(null);
+        instanceNumber = toxNew(savedatafile);
         Log.i("instanceNumber",instanceNumber+"");
     }
 
-    public void  invokeSelfConnectionStatus(boolean b){
-        invokeSelfConnectionStatus(instanceNumber,b);
+   public  void  updateSaveData(){
+        toxUpdateSaveData(instanceNumber);
+   }
+
+    public void  registeSelfConnectionStatusCallBack(boolean b){
+        registeSelfConnectionStatusCallBack(instanceNumber,b);
     }
 
+    public void  registeFriendNameCallBack(boolean b){
+        registeFriendNameCallBack(instanceNumber,b);
+    }
+
+    public void registeFriendStatusMessageCallBack( boolean breg){
+        registeFriendStatusMessageCallBack(instanceNumber,breg);
+    }
+    public void registeFriendStatusCallBack( boolean breg){
+        registeFriendStatusCallBack(instanceNumber,breg);
+    }
+
+    public void registeFriendConnectionStatusCallBack( boolean breg){
+        registeFriendConnectionStatusCallBack(instanceNumber,breg);
+    }
+    public void registeFriendTypingCallBack( boolean breg){
+        registeFriendTypingCallBack(instanceNumber,breg);
+    }
+    public void registeFriendNReadReceiptCallBack( boolean breg){
+        registeFriendNReadReceiptCallBack(instanceNumber,breg);
+    }
+    public void registeFriendRequestCallBack( boolean breg){
+        registeFriendRequestCallBack(instanceNumber,breg);
+    }
+    public void registeFriendMessageCallBack( boolean breg){
+        registeFriendMessageCallBack(instanceNumber,breg);
+    }
+    public void registeFriendLossyPacketCallBack( boolean breg){
+        registeFriendLossyPacketCallBack(instanceNumber,breg);
+    }
+    public void registeFriendLossLessPacketCallBack( boolean breg){
+        registeFriendLossLessPacketCallBack(instanceNumber,breg);
+    }
+
+    /*
+     function
+     */
     public boolean  bootstrap(String address ,int  port,byte[]  publicKey){
            return toxBootstrap(instanceNumber,address,port,publicKey);
+    }
+    public byte[] getSelfPublicKey(){
+        return toxSelfGetPublicKey(instanceNumber);
+    }
+
+    public byte[]  getSelfSecretKey()
+    {
+        return toxSelfGetSecretKey(instanceNumber);
+    }
+
+    public void SetSelfNospam(int nospam)
+    {
+        toxSelfSetNospam( instanceNumber, nospam);
+    }
+
+    public int getSelfNospam(){
+        return toxSelfGetNospam(instanceNumber);
     }
 
     public void addTcpRelay(String address,int port, String  publicKey){
         toxAddTcpRelay(instanceNumber, address, port, publicKey.getBytes());
     }
-    public void setName(String namee){
+
+    public byte[] getSelfName(){
+        return toxSelfGetName(instanceNumber);
+    }
+    public void setSelfName(String namee){
        toxSelfSetName(instanceNumber, namee.getBytes());
     }
     public void  setStatusMessage(String message) {
         toxSelfSetStatusMessage(instanceNumber, message.getBytes());
     }
-    public byte[] getAddress() {
+    public byte[] getSelfAddress() {
        return  toxSelfGetAddress(instanceNumber);
     }
-    public void  toxIterate(){
+
+    public byte[] getSelfStatusMessage()
+    {
+        return toxSelfGetStatusMessage(instanceNumber);
+    }
+    public void setSelfStatus(int status){
+        toxSelfSetStatus(instanceNumber,status);
+    }
+
+    public int getSelfStatus(long instanceNumber)
+    {
+        return toxSelfGetStatus(instanceNumber);
+    }
+
+    public int addFriend(byte[] address,  byte[] message)
+    {
+        return toxFriendAdd(instanceNumber,address,message);
+    }
+
+
+    public int addFriendNorequest(byte[] publicKey){
+        return toxFriendAddNorequest(instanceNumber,publicKey);
+    }
+
+    public void deleteFriend(int friendNumber) {
+        toxFriendDelete(instanceNumber,friendNumber);
+    }
+
+    public int findFriendByPublicKey( byte[] publicKey){
+       return toxFriendByPublicKey(instanceNumber,publicKey);
+    }
+
+
+    public byte[] getFriendPublicKey(long instanceNumber, int friendNumber) {
+      return   toxFriendGetPublicKey(instanceNumber,friendNumber);
+    }
+
+    public boolean isFriendExists(long instanceNumber, int friendNumber){
+        return toxFriendExists(instanceNumber,friendNumber);
+    }
+
+    public int[] getSelfFriendList(){
+       return  toxSelfGetFriendList(instanceNumber);
+    }
+
+    public void setSelfTyping(long instanceNumber, int friendNumber, boolean typing) {
+        toxSelfSetTyping(instanceNumber,friendNumber,typing);
+    }
+
+    public int sendFriendMessage(int friendNumber, int type, byte[] message) {
+        return toxFriendSendMessage(instanceNumber,friendNumber,type,message);
+    }
+    public void sendFriendLossyPacket(long instanceNumber, int friendNumber,  byte[] data){
+        toxFriendSendLossyPacket(instanceNumber,friendNumber,data);
+    }
+
+    public void sendFriendLosslessPacket(long instanceNumber, int friendNumber,  byte[] data){
+        toxFriendSendLosslessPacket(instanceNumber,friendNumber,data);
+    }
+    public void  iterate(){
         toxIterate(instanceNumber);
     }
-    public  int toxIterationInterval(){
+    public  int iterationInterval(){
         //Log.i("toxIterationInterval",instanceNumber+"");
         return toxIterationInterval(instanceNumber);
+    }
+    public  void kill(){
+        toxKill(instanceNumber);
+    }
+
+   protected void finalize(){
+        toxKill(instanceNumber);
     }
 }

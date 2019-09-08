@@ -17,6 +17,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
+            minifyEnabled false
             jniDebuggable = false
         }
     }
@@ -49,4 +50,6 @@ dependencies {
     // Logging.
     implementation 'org.slf4j:slf4j-android:1.7.21'
     implementation project(path: ':jtoxcore')
+
+    implementation 'org.greenrobot:eventbus:3.0.0'
 }

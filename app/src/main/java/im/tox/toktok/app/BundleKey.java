@@ -13,4 +13,5 @@ public class BundleKey {
     public static final IntKey imgResource = new IntKey("imgResource");
     public static final StringKey messageTitle = new StringKey("messageTitle");
     public static final IntKey messageType = new IntKey("messageType");
+    public static final IntKey meesageID = new IntKey("meesageID");
 }

@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/simpleDialogIconButton"
                 android:fontFamily="sans-serif-light"
-                android:text="@string/dialog_android_share"
+                android:text="@string/dialog_copy_share"
                 android:textColor="@color/simpleDialogTextButton" />
 
             <Button

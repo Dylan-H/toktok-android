@@ -23,18 +23,19 @@ final class MessageAdapter extends RecyclerView.Adapter<MessageViewHolder> {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageAdapter.class);
 
-    private final MessageClick messageClick;
-    private final MessageActionMode messageActionMode;
-    private final List<Message> messages = new ArrayList<>();
-    private final SparseBooleanArray selectedItems = new SparseBooleanArray();
+    private  MessageClick messageClick;
+    private  MessageActionMode messageActionMode;
+    private  List<Message> messages = new ArrayList<>();
+    private  SparseBooleanArray selectedItems = new SparseBooleanArray();
     private boolean actionModeActive = false;
 
     MessageAdapter(
             MessageClick messageClick,
-            MessageActionMode messageActionMode
+            MessageActionMode messageActionMode,List<Message> msglist
     ) {
         this.messageClick = messageClick;
         this.messageActionMode = messageActionMode;
+        this.messages = msglist;
     }
 
     @NonNull

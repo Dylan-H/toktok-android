@@ -1,5 +1,8 @@
 package im.tox.toktok.app.profile;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -16,8 +19,10 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import im.tox.toktok.R;
+import im.tox.toktok.app.AppWork;
 import im.tox.toktok.app.CompatUtil;
 import im.tox.toktok.app.simple_dialogs.SimpleShareDialogDesign;
 import im.tox.toktok.app.simple_dialogs.SimpleStatusDialogDesign;
@@ -40,6 +45,10 @@ public final class ProfileFragment extends Fragment {
         activity.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_navigation_menu);
         activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        final  TextView toxid=  view.findViewById(R.id.tv_tox_id);
+        byte [] key =AppWork.getInstance().getTox().getSelfAddress();
+        String keyStr= AppWork.bytesToHexStr(key);
+        toxid.setText(keyStr);
         final DrawerLayout drawer = getActivity().findViewById(R.id.home_layout);
         toolbar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,7 +61,24 @@ public final class ProfileFragment extends Fragment {
         mShareIDButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SimpleShareDialogDesign dial = new SimpleShareDialogDesign(getActivity());
+                SimpleShareDialogDesign dial = new SimpleShareDialogDesign(getActivity(), new SimpleShareDialogDesign.CopyListener() {
+                    @Override
+                    public void onCopy() {
+                        try {
+                            //获取剪贴板管理器
+                            ClipboardManager cm = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                            // 创建普通字符型ClipData
+                            String copyStr = toxid.getText().toString();
+                            ClipData mClipData = ClipData.newPlainText("Label", copyStr);
+                            // 将ClipData内容放到系统剪贴板里。
+                            cm.setPrimaryClip(mClipData);
+                            Toast.makeText(getActivity(), R.string.copy_successful, Toast.LENGTH_SHORT).show();
+
+                        } catch (Exception e) {
+                            Toast.makeText(getActivity(), R.string.copy_failed, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
                 dial.show();
             }
         });

@@ -243,6 +243,7 @@ final class ChatsRecyclerViewHolderUser extends ChatsRecyclerViewHolder {
                         BundleKey.contactColorPrimary.map(friend.color),
                         BundleKey.contactColorStatus.map(friend.secondColor),
                         BundleKey.messageTitle.map(friend.userName),
+                        BundleKey.meesageID.map(friend.id),
                         BundleKey.imgResource.map(friend.photoReference)
                 );
             } else {

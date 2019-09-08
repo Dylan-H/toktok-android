@@ -22,11 +22,19 @@ public final class SimpleAddFriendDialogDesign extends Dialog {
 
     @NonNull
     private final Activity activity;
-    private final View.OnClickListener clickAction;
+    private final PriorityListener clickAction;
+
+    public interface PriorityListener {
+        /**
+         * 回调函数，用于在Dialog的监听事件触发后的text传递
+         */
+        void setActivityText(String string);
+    }
+
 
     public SimpleAddFriendDialogDesign(
             @NonNull Activity activity,
-            View.OnClickListener clickAction
+            PriorityListener clickAction
     ) {
         super(activity, R.style.DialogSlideAnimation);
         this.activity = activity;
@@ -43,7 +51,13 @@ public final class SimpleAddFriendDialogDesign extends Dialog {
 
         EditText input = this.findViewById(R.id.simple_dialog_input);
         final Button confirmButton = this.findViewById(R.id.simple_dialog_confirm);
+        confirmButton.setOnClickListener(new View.OnClickListener(){
 
+            @Override
+            public void onClick(View view) {
+                clickAction.setActivityText(input.getText().toString());
+            }
+        });
         Button cancelButton = this.findViewById(R.id.simple_dialog_cancel);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,7 +81,7 @@ public final class SimpleAddFriendDialogDesign extends Dialog {
                 final Resources resources = activity.getResources();
                 confirmButton.setTextColor(CompatUtil.getColor(resources, R.color.simpleDialogTextButton));
                 confirmButton.setBackgroundTintList(ColorStateList.valueOf(CompatUtil.getColor(resources, R.color.simpleDialogIconButton)));
-                confirmButton.setOnClickListener(clickAction);
+                //confirmButton.setOnClickListener(clickAction);
             }
         });
     }

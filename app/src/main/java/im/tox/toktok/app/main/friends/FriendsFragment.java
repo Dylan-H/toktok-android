@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import im.tox.toktok.R;
+import im.tox.toktok.app.AppWork;
 import im.tox.toktok.app.BundleKey;
 import im.tox.toktok.app.MainActivityHolder;
 import im.tox.toktok.app.call.CallActivity;
@@ -48,12 +49,14 @@ public final class FriendsFragment extends Fragment implements FriendItemClicks 
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         friendsRecycler.setLayoutManager(layoutManager);
 
-        final List<Friend> friends = Arrays.asList(
-                Friend.bart,
-                Friend.lorem,
-                Friend.jane,
-                Friend.john
-        );
+//        final List<Friend> friends = Arrays.asList(
+//                Friend.bart,
+//                Friend.lorem,
+//                Friend.jane,
+//                Friend.john
+//        );
+
+        final List<Friend> friends = AppWork.getInstance().getFriendList();
 
         mFriendsRecyclerAdapter = new FriendsRecyclerHeaderAdapter(friends, this);
 
@@ -111,7 +114,8 @@ public final class FriendsFragment extends Fragment implements FriendItemClicks 
                 BundleKey.contactColorPrimary.map(friend.color),
                 BundleKey.contactColorStatus.map(friend.secondColor),
                 BundleKey.imgResource.map(friend.photoReference),
-                BundleKey.messageType.map(0)
+                BundleKey.messageType.map(0),
+                BundleKey.meesageID.map(friend.id)
         )));
     }
 

@@ -13,9 +13,17 @@ import android.widget.Button;
 import im.tox.toktok.R;
 
 public final class SimpleShareDialogDesign extends Dialog {
+    public interface CopyListener {
+        /**
+         * 回调函数，用于在Dialog的监听事件触发后的text传递
+         */
+        void onCopy();
+    }
+    CopyListener copyListener;
 
-    public SimpleShareDialogDesign(@NonNull Context context) {
+    public SimpleShareDialogDesign(@NonNull Context context,CopyListener listener) {
         super(context, R.style.DialogSlideAnimation);
+        copyListener= listener;
     }
 
     @Override
@@ -32,6 +40,16 @@ public final class SimpleShareDialogDesign extends Dialog {
                 dismiss();
             }
         });
+
+        Button shareButton = this.findViewById(R.id.simple_dialog_android_share);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                copyListener.onCopy();
+            }
+        });
+
     }
 
 }

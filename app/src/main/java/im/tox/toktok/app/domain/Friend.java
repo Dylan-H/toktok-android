@@ -10,13 +10,13 @@ public final class Friend {
     public static final Friend jane = new Friend(3, "Jane Norman", "New Photo!", 0, Color.parseColor("#CDDC39"), Color.parseColor("#AFB42B"), R.drawable.jane);
     public static final Friend bart = new Friend(4, "Bart Simpson", "In vacation \uD83D\uDEA2", 0, Color.parseColor("#FF9800"), Color.parseColor("#F57C00"), R.drawable.bart);
 
-    public final int id;
-    public final String userName;
-    public final String userMessage;
-    public final int userStatus;
-    public final int color;
-    public final int secondColor;
-    public final int photoReference;
+    public  int id;
+    public  String userName;
+    public  String userMessage;
+    public  int userStatus;
+    public  int color;
+    public  int secondColor;
+    public  int photoReference;
 
     public Friend(
             int id,

@@ -1,5 +1,6 @@
 package im.tox.toktok.app.message_activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -38,8 +39,12 @@ import android.widget.TextView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.tox.toktok.R;
+import im.tox.toktok.app.AppWork;
 import im.tox.toktok.app.BundleKey;
 import im.tox.toktok.app.CompatUtil;
 import im.tox.toktok.app.SizeAnimation;
@@ -65,6 +70,7 @@ public final class MessageActivity extends AppCompatActivity implements MessageC
     @NonNull
     private Boolean mSendButtonActive = false;
     private String title = "";
+    private int friendId =-1;
     private int imgSRC = 0;
     @Nullable
     private CardView mInputLayout = null;
@@ -91,6 +97,7 @@ public final class MessageActivity extends AppCompatActivity implements MessageC
         contactColorStatus = BundleKey.contactColorStatus.get(bundle);
         typeOfMessage = BundleKey.messageType.get(bundle);
         title = BundleKey.messageTitle.get(bundle);
+        friendId = BundleKey.meesageID.get(bundle);
         imgSRC = BundleKey.imgResource.get(bundle);
 
         initToolbar();
@@ -282,7 +289,15 @@ public final class MessageActivity extends AppCompatActivity implements MessageC
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getBaseContext());
         mLayoutManager.setReverseLayout(true);
         mRecycler.setHasFixedSize(true);
-        mRecyclerAdapter = new MessageAdapter(this, this);
+        if(typeOfMessage==0) {
+            List<Message> lsmsg = AppWork.getInstance().getMessageList(friendId);
+            if(lsmsg==null){
+                lsmsg= new ArrayList<>();
+            }
+            mRecyclerAdapter = new MessageAdapter(this, this,lsmsg);
+        }else{
+            mRecyclerAdapter = new MessageAdapter(this, this,new ArrayList<Message>());
+        }
 
         if (imgSRC == 0) {
             imgSRC = R.drawable.lorem;
@@ -290,10 +305,10 @@ public final class MessageActivity extends AppCompatActivity implements MessageC
             mRecyclerAdapter.addItem(new Message(MessageType.Received, "Awesome stuff!", "14:29 Received", R.drawable.john));
         }
 
-        mRecyclerAdapter.addItem(new Message(MessageType.Delivered, "Welcome to TokTok " + title + ", I hope you love it, as much as I do \uD83D\uDE00", "14:30 Delivered", R.drawable.user));
-        mRecyclerAdapter.addItem(new Message(MessageType.Received, "Thanks André Almeida, let's hope soo.", "14:31 Received", imgSRC));
-        mRecyclerAdapter.addItem(new Message(MessageType.Action, "Smiled", "", imgSRC));
-        mRecyclerAdapter.addItem(new Message(MessageType.Received, "Yooo!", "14:32 Received", imgSRC));
+//        mRecyclerAdapter.addItem(new Message(MessageType.Delivered, "Welcome to TokTok " + title + ", I hope you love it, as much as I do \uD83D\uDE00", "14:30 Delivered", R.drawable.user));
+//        mRecyclerAdapter.addItem(new Message(MessageType.Received, "Thanks André Almeida, let's hope soo.", "14:31 Received", imgSRC));
+//        mRecyclerAdapter.addItem(new Message(MessageType.Action, "Smiled", "", imgSRC));
+//        mRecyclerAdapter.addItem(new Message(MessageType.Received, "Yooo!", "14:32 Received", imgSRC));
 
         mRecycler.setAdapter(mRecyclerAdapter);
         mRecycler.setLayoutManager(mLayoutManager);
@@ -324,6 +339,7 @@ public final class MessageActivity extends AppCompatActivity implements MessageC
             public void onClick(View v) {
                 logger.debug("hahaha: " + mInput.getText());
                 mRecyclerAdapter.addItem(new Message(MessageType.Delivered, mInput.getText().toString(), "14:41 Delivered", R.drawable.user));
+                AppWork.getInstance().getTox().sendFriendMessage(friendId,0,mInput.getText().toString().getBytes());
                 mRecycler.smoothScrollToPosition(0);
                 mInput.setText("");
             }
@@ -365,6 +381,7 @@ public final class MessageActivity extends AppCompatActivity implements MessageC
         Animation buttonAnimation = AnimationUtils.loadAnimation(this, R.anim.fab_from_right);
 
         buttonAnimation.setAnimationListener(new AnimationListener() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onAnimationStart(Animation animation) {
                 mSendButton.setVisibility(View.VISIBLE);
@@ -400,6 +417,7 @@ public final class MessageActivity extends AppCompatActivity implements MessageC
             public void onAnimationStart(Animation animation) {
             }
 
+            @SuppressLint("RestrictedApi")
             @Override
             public void onAnimationEnd(Animation animation) {
                 // Hide the button behind the input widget, because the setVisibility call performs another

@@ -130,7 +130,8 @@ public final class MessageGroupContacts extends AppCompatActivity implements Fri
                 BundleKey.contactColorPrimary.map(friend.color),
                 BundleKey.contactColorStatus.map(friend.secondColor),
                 BundleKey.imgResource.map(friend.photoReference),
-                BundleKey.messageType.map(0)
+                BundleKey.messageType.map(0),
+                BundleKey.meesageID.map(friend.id)
         )));
     }
 

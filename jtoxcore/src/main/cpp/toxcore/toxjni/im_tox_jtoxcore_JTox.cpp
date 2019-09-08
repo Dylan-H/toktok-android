@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <sodium.h>
+#include <string>
 /* Header for class im_tox_jtoxcore_JTox */
 #include "tox.h"
 #include "ArrayFromJava.h"
@@ -25,6 +26,7 @@ typedef struct {
     JavaVM *jvm;
     jobject handler;
     jobject jtox;
+    char* savedatapath;
 } tox_jni_globals_t;
 
 
@@ -33,16 +35,133 @@ static void callback_connectionstatus(Tox *tox, TOX_CONNECTION connection_status
 {
     tox_jni_globals_t *ptr = (tox_jni_globals_t *) user_data;
     JNIEnv *env;
-    jclass handlerclass;
-    jmethodID handlermeth;
-
     ATTACH_THREAD(ptr, env);
-    handlerclass = env->GetObjectClass( ptr->handler);
-    handlermeth = env->GetMethodID(handlerclass, "onSelfConnectionStatus", "(I)V");
+    jclass  handlerclass = env->GetObjectClass( ptr->handler);
+    jmethodID  handlermeth = env->GetMethodID(handlerclass, "onSelfConnectionStatus", "(I)V");
     env->CallVoidMethod(ptr->handler, handlermeth, (int)connection_status);
     UNUSED(tox);
 }
+void callback_friendname(Tox *tox, uint32_t friend_number, const uint8_t *name, size_t length, void *user_data){
+    tox_jni_globals_t *ptr = (tox_jni_globals_t *) user_data;
+    JNIEnv *env;
+    ATTACH_THREAD(ptr, env);
+    jclass  handlerclass = env->GetObjectClass( ptr->handler);
+    jmethodID  handlermeth = env->GetMethodID(handlerclass, "onFriendNameChange", "(ILjava/lang/String;)V");
+    std::string_view str((const char*)name,length);
+    jstring jstring = env->NewStringUTF(str.data());
+    env->CallVoidMethod(ptr->handler, handlermeth, friend_number,jstring);
+    UNUSED(tox);
+}
 
+void callback_friend_status_message(Tox *tox, uint32_t friend_number, const uint8_t *message, size_t length,
+                                  void *user_data){
+    tox_jni_globals_t *ptr = (tox_jni_globals_t *) user_data;
+    JNIEnv *env;
+    ATTACH_THREAD(ptr, env);
+    jclass  handlerclass = env->GetObjectClass( ptr->handler);
+    jmethodID  handlermeth = env->GetMethodID(handlerclass, "onFriendStatusMessageChange", "(ILjava/lang/String;)V");
+    std::string_view str((const char*)message,length);
+    jstring jstring = env->NewStringUTF(str.data());
+    env->CallVoidMethod(ptr->handler, handlermeth, friend_number,jstring);
+    UNUSED(tox);
+}
+
+void callback_friend_status(Tox *tox, uint32_t friend_number, TOX_USER_STATUS status, void *user_data){
+    tox_jni_globals_t *ptr = (tox_jni_globals_t *) user_data;
+    JNIEnv *env;
+    ATTACH_THREAD(ptr, env);
+    jclass  handlerclass = env->GetObjectClass( ptr->handler);
+    jmethodID  handlermeth = env->GetMethodID(handlerclass, "onFriendStatusChange", "(II)V");
+    env->CallVoidMethod(ptr->handler, handlermeth, friend_number,int(status));
+    UNUSED(tox);
+}
+
+void callback_friend_connection_status(Tox *tox, uint32_t friend_number, TOX_CONNECTION connection_status,
+                                     void *user_data){
+    tox_jni_globals_t *ptr = (tox_jni_globals_t *) user_data;
+    JNIEnv *env;
+    ATTACH_THREAD(ptr, env);
+    jclass  handlerclass = env->GetObjectClass( ptr->handler);
+    jmethodID  handlermeth = env->GetMethodID(handlerclass, "onFriendConnectionStatusChange", "(II)V");
+    env->CallVoidMethod(ptr->handler, handlermeth, friend_number,int(connection_status));
+    UNUSED(tox);
+}
+
+void callback_friend_typing(Tox *tox, uint32_t friend_number, bool is_typing, void *user_data){
+    tox_jni_globals_t *ptr = (tox_jni_globals_t *) user_data;
+    JNIEnv *env;
+    ATTACH_THREAD(ptr, env);
+    jclass  handlerclass = env->GetObjectClass( ptr->handler);
+    jmethodID  handlermeth = env->GetMethodID(handlerclass, "onFriendTypingChange", "(IZ)V");
+    env->CallVoidMethod(ptr->handler, handlermeth, friend_number,is_typing);
+    UNUSED(tox);
+}
+
+void callback_friend_read_receipt(Tox *tox, uint32_t friend_number, uint32_t message_id, void *user_data){
+    tox_jni_globals_t *ptr = (tox_jni_globals_t *) user_data;
+    JNIEnv *env;
+    ATTACH_THREAD(ptr, env);
+    jclass  handlerclass = env->GetObjectClass( ptr->handler);
+    jmethodID  handlermeth = env->GetMethodID(handlerclass, "onFriendReadReceipt", "(II)V");
+    env->CallVoidMethod(ptr->handler, handlermeth, friend_number,message_id);
+    UNUSED(tox);
+}
+
+void callback_friend_request(Tox *tox, const uint8_t *public_key, const uint8_t *message, size_t length,
+                           void *user_data){
+    tox_jni_globals_t *ptr = (tox_jni_globals_t *) user_data;
+    JNIEnv *env;
+    ATTACH_THREAD(ptr, env);
+    jclass  handlerclass = env->GetObjectClass( ptr->handler);
+    jmethodID  handlermeth = env->GetMethodID(handlerclass, "onFriendReadRequest", "([BLjava/lang/String;)V");
+
+    jbyte *by = (jbyte*)public_key;
+    jbyteArray jarray = env->NewByteArray(TOX_PUBLIC_KEY_SIZE);
+    env->SetByteArrayRegion(jarray, 0, TOX_PUBLIC_KEY_SIZE, by);
+    std::string_view str((const char*)message,length);
+    jstring jstring = env->NewStringUTF(str.data());
+    env->CallVoidMethod(ptr->handler, handlermeth, jarray,jstring);
+    UNUSED(tox);
+}
+
+void callback_friend_message(Tox *tox, uint32_t friend_number, TOX_MESSAGE_TYPE type, const uint8_t *message,
+                           size_t length, void *user_data){
+    tox_jni_globals_t *ptr = (tox_jni_globals_t *) user_data;
+    JNIEnv *env;
+    ATTACH_THREAD(ptr, env);
+    jclass  handlerclass = env->GetObjectClass( ptr->handler);
+    jmethodID  handlermeth = env->GetMethodID(handlerclass, "onFriendMessage", "(IILjava/lang/String;)V");
+    std::string_view str((const char*)message,length);
+    jstring jstring = env->NewStringUTF(str.data());
+    env->CallVoidMethod(ptr->handler, handlermeth, friend_number,(int)type,jstring);
+    UNUSED(tox);
+}
+
+void callback_friend_lossy_packet(Tox *tox, uint32_t friend_number, const uint8_t *data, size_t length,
+                                void *user_data){
+    tox_jni_globals_t *ptr = (tox_jni_globals_t *) user_data;
+    JNIEnv *env;
+    ATTACH_THREAD(ptr, env);
+    jclass  handlerclass = env->GetObjectClass( ptr->handler);
+    jmethodID  handlermeth = env->GetMethodID(handlerclass, "onFriendLossyPacket", "(ILjava/lang/String;)V");
+    std::string_view str((const char*)data,length);
+    jstring jstring = env->NewStringUTF(str.data());
+    env->CallVoidMethod(ptr->handler, handlermeth, friend_number,jstring);
+    UNUSED(tox);
+}
+
+void callback_friend_lossless_packet(Tox *tox, uint32_t friend_number, const uint8_t *data, size_t length,
+                                   void *user_data){
+    tox_jni_globals_t *ptr = (tox_jni_globals_t *) user_data;
+    JNIEnv *env;
+    ATTACH_THREAD(ptr, env);
+    jclass  handlerclass = env->GetObjectClass( ptr->handler);
+    jmethodID  handlermeth = env->GetMethodID(handlerclass, "onFriendLossLessPacket", "(ILjava/lang/String;)V");
+    std::string_view str((const char*)data,length);
+    jstring jstring = env->NewStringUTF(str.data());
+    env->CallVoidMethod(ptr->handler, handlermeth, friend_number,jstring);
+    UNUSED(tox);
+}
 
 
 JNIEXPORT jlong JNICALL Java_im_tox_jtoxcore_JTox_toxNew(JNIEnv *env, jobject jobj,jstring savedatafile)
@@ -81,6 +200,9 @@ JNIEXPORT jlong JNICALL Java_im_tox_jtoxcore_JTox_toxNew(JNIEnv *env, jobject jo
                 free(savedata);
 
             }
+            int len =strlen(path);
+            globals->savedatapath= (char*)malloc(len+1);
+            strcpy(globals->savedatapath,path);
             env->ReleaseStringUTFChars(savedatafile, path);
         }
     }
@@ -96,6 +218,24 @@ JNIEXPORT jlong JNICALL Java_im_tox_jtoxcore_JTox_toxNew(JNIEnv *env, jobject jo
     globals->jtox = jtoxRef;
     jlong  ll = ((jlong) ((intptr_t) globals));
     return ll;
+}
+
+JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_toxUpdateSaveData(JNIEnv *env, jobject jobj,jlong instanceNumber)
+{
+    Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
+    size_t size = tox_get_savedata_size(tox);
+    char *savedata = (char*)malloc(size);
+    tox_get_savedata(tox, (uint8_t*)savedata);
+    char * savedata_filename =((tox_jni_globals_t *) ((intptr_t) instanceNumber))->savedatapath;
+    char *tmpname = (char *) malloc(strlen(savedata_filename) +5);
+    sprintf(tmpname, "%s.tmp", savedata_filename);
+
+    FILE *f = fopen(tmpname, "wb+");
+    fwrite(savedata, size, 1, f);
+    fclose(f);
+    rename(tmpname, savedata_filename);
+    free(savedata);
+    free(tmpname);
 }
 
 
@@ -116,6 +256,11 @@ JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_toxKill
  */
 JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_toxFinalize
         (JNIEnv *env, jobject jobj, jlong instanceNumber) {
+    tox_jni_globals_t * globals= (tox_jni_globals_t *) ((intptr_t) instanceNumber);
+    if(globals->savedatapath!= nullptr){
+        free(globals->savedatapath);
+    }
+    env->DeleteGlobalRef(globals->handler);
 }
 /*
  * Class:     im_tox_jtoxcore_JTox
@@ -431,7 +576,11 @@ JNIEXPORT jint JNICALL Java_im_tox_jtoxcore_JTox_toxFriendByPublicKey
         (JNIEnv *env, jobject jobj, jlong instanceNumber, jbyteArray publickey) {
     Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
     auto publickey_array = fromJavaArray (env, publickey);
-    tox_friend_by_public_key(tox,publickey_array.data(),NULL);
+    int ret =tox_friend_by_public_key(tox,publickey_array.data(),NULL);
+    if(ret==UINT32_MAX){
+        return -1;
+    }
+    return ret;
 }
 
 /*
@@ -494,7 +643,7 @@ JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_toxSelfSetTyping
  * Signature: (IIII[B)I
  */
 JNIEXPORT jint JNICALL Java_im_tox_jtoxcore_JTox_toxFriendSendMessage
-        (JNIEnv *env, jobject jobj, jlong instanceNumber, jint friendnumber, jint type, jint timeDelta, jbyteArray message) {
+        (JNIEnv *env, jobject jobj, jlong instanceNumber, jint friendnumber, jint type,jbyteArray message) {
     Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
     auto message_array = fromJavaArray (env, message);
     return  tox_friend_send_message(tox,friendnumber,(TOX_MESSAGE_TYPE)type,message_array.data(),message_array.size(),NULL);
@@ -562,9 +711,9 @@ JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_toxFriendSendLosslessPacket
 /*
  * Class:     im_tox_jtoxcore_JTox
  * Method:    invokeSelfConnectionStatus
- * Signature: (II)V
+ * Signature: (IZ)V
  */
-JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_invokeSelfConnectionStatus
+JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_registeSelfConnectionStatusCallBack
         (JNIEnv *env, jobject jobj, jlong instanceNumber, jboolean b) {
     Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
     if(b){
@@ -575,6 +724,122 @@ JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_invokeSelfConnectionStatus
 }
 
 
+/*
+ * Class:     im_tox_jtoxcore_JTox
+ * Method:    registeFriendnameCallback
+ * Signature: (IZ)V
+ */
+JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_registeFriendNameCallBack
+        (JNIEnv *env, jobject jobj, jlong instanceNumber, jboolean b) {
+    Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
+    if(b){
+        tox_callback_friend_name (tox,callback_friendname);
+    }else{
+        tox_callback_friend_name(tox, nullptr);
+    }
+}
+
+
+JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_registeFriendStatusMessageCallBack
+        (JNIEnv *env, jobject jobj, jlong instanceNumber, jboolean b) {
+    Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
+    if(b){
+        tox_callback_friend_status_message(tox,callback_friend_status_message);
+        tox_callback_friend_name (tox,callback_friendname);
+    }else{
+        tox_callback_friend_status_message(tox, nullptr);
+    }
+}
+
+
+JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_registeFriendStatusCallBack
+        (JNIEnv *env, jobject jobj, jlong instanceNumber, jboolean b) {
+    Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
+    if(b){
+        tox_callback_friend_status (tox,callback_friend_status);
+    }else{
+        tox_callback_friend_status(tox, nullptr);
+    }
+}
+
+
+JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_registeFriendConnectionStatusCallBack
+        (JNIEnv *env, jobject jobj, jlong instanceNumber, jboolean b) {
+    Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
+    if(b){
+        tox_callback_friend_connection_status (tox,callback_friend_connection_status);
+    }else{
+        tox_callback_friend_connection_status(tox, nullptr);
+    }
+}
+
+
+
+JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_registeFriendTypingCallBack
+        (JNIEnv *env, jobject jobj, jlong instanceNumber, jboolean b) {
+    Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
+    if(b){
+        tox_callback_friend_typing (tox,callback_friend_typing);
+    }else{
+        tox_callback_friend_typing(tox, nullptr);
+    }
+}
+
+
+JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_registeFriendNReadReceiptCallBack
+        (JNIEnv *env, jobject jobj, jlong instanceNumber, jboolean b) {
+    Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
+    if(b){
+        tox_callback_friend_read_receipt (tox,callback_friend_read_receipt);
+    }else{
+        tox_callback_friend_read_receipt(tox, nullptr);
+    }
+}
+
+
+JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_registeFriendRequestCallBack
+        (JNIEnv *env, jobject jobj, jlong instanceNumber, jboolean b) {
+    Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
+    if(b){
+        tox_callback_friend_request (tox,callback_friend_request);
+    }else{
+        tox_callback_friend_request(tox, nullptr);
+    }
+}
+
+
+
+JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_registeFriendMessageCallBack
+        (JNIEnv *env, jobject jobj, jlong instanceNumber, jboolean b) {
+    Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
+    if(b){
+        tox_callback_friend_message (tox,callback_friend_message);
+    }else{
+        tox_callback_friend_message(tox, nullptr);
+    }
+}
+
+
+JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_registeFriendLossyPacketCallBack
+        (JNIEnv *env, jobject jobj, jlong instanceNumber, jboolean b) {
+    Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
+    if(b){
+        tox_callback_friend_lossy_packet (tox,callback_friend_lossy_packet);
+    }else{
+        tox_callback_friend_lossy_packet(tox, nullptr);
+    }
+}
+
+
+JNIEXPORT void JNICALL Java_im_tox_jtoxcore_JTox_registeFriendLossLessPacketCallBack
+        (JNIEnv *env, jobject jobj, jlong instanceNumber, jboolean b) {
+    Tox *tox = ((tox_jni_globals_t *) ((intptr_t) instanceNumber))->tox;
+    if(b){
+        tox_callback_friend_lossless_packet (tox,callback_friend_lossless_packet);
+    }else{
+        tox_callback_friend_lossless_packet(tox, nullptr);
+    }
+}
 
 #ifdef __cplusplus
 }

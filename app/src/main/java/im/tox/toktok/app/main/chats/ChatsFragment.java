@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import im.tox.toktok.R;
+import im.tox.toktok.app.AppWork;
 import im.tox.toktok.app.CompatUtil;
 import im.tox.toktok.app.CustomViewPager;
 import im.tox.toktok.app.MyRecyclerScroll;
@@ -53,12 +54,12 @@ public final class ChatsFragment extends Fragment implements ChatItemClick {
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getBaseContext());
         mChatsRecycler.setLayoutManager(mLayoutManager);
 
-        List<ChatMessage> chatMessages = Arrays.asList(
-                ChatMessage.loremMessage,
-                ChatMessage.johnMessage,
-                ChatMessage.groupMessage
-        );
-
+//        List<ChatMessage> chatMessages = Arrays.asList(
+//                ChatMessage.loremMessage,
+//                ChatMessage.johnMessage,
+//                ChatMessage.groupMessage
+//        );
+        List<ChatMessage> chatMessages = AppWork.getInstance().getChatMessageList();
         mChatsRecyclerAdapter = new ChatsRecyclerAdapter(chatMessages, this);
 
         mChatsRecycler.setAdapter(mChatsRecyclerAdapter);

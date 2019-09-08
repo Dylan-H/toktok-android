@@ -29,6 +29,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import im.tox.toktok.R;
+import im.tox.toktok.app.AppWork;
 import im.tox.toktok.app.CompatUtil;
 import im.tox.toktok.app.CustomViewPager;
 import im.tox.toktok.app.MainActivityHolder;
@@ -40,7 +41,7 @@ public final class MainFragment extends Fragment {
     @Nullable
     private Menu mMenu = null;
     @Nullable
-    private FloatingActionButton mFab = null;
+    private FloatingActionButton  mFab = null;
     @Nullable
     private DrawerLayout mDrawer = null;
 
@@ -149,7 +150,12 @@ public final class MainFragment extends Fragment {
         }
 
         if (id == R.id.action_add_friend) {
-            SimpleAddFriendDialogDesign dial = new SimpleAddFriendDialogDesign(getActivity(), null);
+            SimpleAddFriendDialogDesign dial = new SimpleAddFriendDialogDesign(getActivity(), new SimpleAddFriendDialogDesign.PriorityListener(){
+                @Override
+                public void setActivityText(String string) {
+                    AppWork.getInstance().getTox().addFriend(AppWork.hexStr2Byte(string),"hellor".getBytes());
+                }
+            });
             dial.show();
             return true;
         }

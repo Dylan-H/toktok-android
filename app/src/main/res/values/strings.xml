@@ -15,7 +15,8 @@
     <string name="drawer_settings">Settings</string>
 
     <string name="drawer_connection_connecting">Connecting…</string>
-    <string name="drawer_connection_connected">Connected</string>
+    <string name="drawer_connection_connected_tcp">Connected-TCP</string>
+    <string name="drawer_connection_connected_udp">Connected-UDP</string>
     <string name="drawer_connection_not_available">Unavailable</string>
 
     <!-- Menu -->
@@ -79,6 +80,7 @@
     <string name="dialog_confirm">Confirm</string>
     <string name="dialog_qr_code">QR Code</string>
     <string name="dialog_android_share">Android Share</string>
+    <string name="dialog_copy_share">Copy</string>
     <string name="dialog_status_online">Online</string>
     <string name="dialog_status_away">Away</string>
     <string name="dialog_status_busy">Busy</string>
@@ -113,5 +115,7 @@
     <string name="sample_user_name">André Almeida</string>
     <string name="sample_status_message">Trying out the new Tox Android</string>
     <string name="sample_tox_id">AC1A8F21118958478C84BE0BA4F0AFA76D1923356269726449BDA8930214BA26FD89FDE7547E</string>
-
+    <string name= "copy_successful">复制成功</string>
+    <string name= "copy_failed">复制失败</string>
+    <string name= "request_qupermission_fail_info">需要存储权限写入好友信息</string>
 </resources>
